@@ -141,22 +141,22 @@ class CLIReporter(repo: Repository) extends Reporter {
             }
         }
 
-    val dirtyReports = reports.filter(_.objectProtectsDirt)
-    if (dirtyReports.nonEmpty) {
-
-      println(s"""
-      |WARNING: The dirty content above may be removed from other commits, but as
-      |the *protected* commits still use it, it will STILL exist in your repository.
-      |
-      |Details of protected dirty content have been recorded here :
-      |
-      |${protectedDirtDir.path + protectedDirtDir.separator}
-      |
-      |If you *really* want this content gone, make a manual commit that removes it,
-      |and then run the BFG on a fresh copy of your repo.
-       """.stripMargin)
-      // TODO would like to abort here if we are cleaning 'private' data.
-    }
+//    val dirtyReports = reports.filter(_.objectProtectsDirt)
+//    if (dirtyReports.nonEmpty) {
+//
+//      println(s"""
+//      |WARNING: The dirty content above may be removed from other commits, but as
+//      |the *protected* commits still use it, it will STILL exist in your repository.
+//      |
+//      |Details of protected dirty content have been recorded here :
+//      |
+//      |${protectedDirtDir.path + protectedDirtDir.separator}
+//      |
+//      |If you *really* want this content gone, make a manual commit that removes it,
+//      |and then run the BFG on a fresh copy of your repo.
+//       """.stripMargin)
+//      // TODO would like to abort here if we are cleaning 'private' data.
+//    }
   }
 
   def changedLinesFor(edits: EditList): String = {
@@ -171,38 +171,38 @@ class CLIReporter(repo: Repository) extends Reporter {
   }
 
   def reportResults(commits: List[RevCommit], objectIdCleaner: ObjectIdCleaner) {
-    def reportTreeDirtHistory() {
-
-      val dirtHistoryElements = math.max(20, math.min(60, commits.size))
-      def cut[A](xs: Seq[A], n: Int) = {
-        val avgSize = xs.size.toFloat / n
-        def startOf(unit: Int): Int = math.round(unit * avgSize)
-        (0 until n).view.map(u => xs.slice(startOf(u), startOf(u + 1)))
-      }
-      val treeDirtHistory = cut(commits, dirtHistoryElements).map {
-        case commits if commits.isEmpty => ' '
-        case commits if (commits.exists(c => objectIdCleaner.isDirty(c.getTree))) => 'D'
-        case commits if (commits.exists(objectIdCleaner.isDirty)) => 'm'
-        case _ => '.'
-      }.mkString
-      def leftRight(markers: Seq[String]) = markers.mkString(" " * (treeDirtHistory.length - markers.map(_.size).sum))
-      println(title("Commit Tree-Dirt History"))
-      println("\t" + leftRight(Seq("Earliest", "Latest")))
-      println("\t" + leftRight(Seq("|", "|")))
-      println("\t" + treeDirtHistory)
-      println("\n\tD = dirty commits (file tree fixed)")
-      println("\tm = modified commits (commit message or parents changed)")
-      println("\t. = clean commits (no changes to file tree)\n")
-
-      val firstModifiedCommit = ("First modified commit", commits.find(objectIdCleaner.isDirty).get)
-      val lastDirtyCommit = ("Last dirty commit", commits.reverse.find(c => objectIdCleaner.isDirty(c.getTree)).get)
-      val items = for ((desc, commit) <- Seq(firstModifiedCommit, lastDirtyCommit);
-                       (before, after) <- objectIdCleaner.substitution(commit)
-      ) yield (desc, before.shortName, after.shortName)
-      Tables.formatTable(("", "Before", "After"), items).map("\t" + _).foreach(println)
-    }
-
-    reportTreeDirtHistory()
+//    def reportTreeDirtHistory() {
+//
+//      val dirtHistoryElements = math.max(20, math.min(60, commits.size))
+//      def cut[A](xs: Seq[A], n: Int) = {
+//        val avgSize = xs.size.toFloat / n
+//        def startOf(unit: Int): Int = math.round(unit * avgSize)
+//        (0 until n).view.map(u => xs.slice(startOf(u), startOf(u + 1)))
+//      }
+//      val treeDirtHistory = cut(commits, dirtHistoryElements).map {
+//        case commits if commits.isEmpty => ' '
+//        case commits if (commits.exists(c => objectIdCleaner.isDirty(c.getTree))) => 'D'
+//        case commits if (commits.exists(objectIdCleaner.isDirty)) => 'm'
+//        case _ => '.'
+//      }.mkString
+//      def leftRight(markers: Seq[String]) = markers.mkString(" " * (treeDirtHistory.length - markers.map(_.size).sum))
+//      println(title("Commit Tree-Dirt History"))
+//      println("\t" + leftRight(Seq("Earliest", "Latest")))
+//      println("\t" + leftRight(Seq("|", "|")))
+//      println("\t" + treeDirtHistory)
+//      println("\n\tD = dirty commits (file tree fixed)")
+//      println("\tm = modified commits (commit message or parents changed)")
+//      println("\t. = clean commits (no changes to file tree)\n")
+//
+//      val firstModifiedCommit = ("First modified commit", commits.find(objectIdCleaner.isDirty).get)
+//      val lastDirtyCommit = ("Last dirty commit", commits.reverse.find(c => objectIdCleaner.isDirty(c.getTree)).get)
+//      val items = for ((desc, commit) <- Seq(firstModifiedCommit, lastDirtyCommit);
+//                       (before, after) <- objectIdCleaner.substitution(commit)
+//      ) yield (desc, before.shortName, after.shortName)
+//      Tables.formatTable(("", "Before", "After"), items).map("\t" + _).foreach(println)
+//    }
+//
+//    reportTreeDirtHistory()
 
     lazy val mapFile = reportsDir / "object-id-map.old-new.txt"
     lazy val cacheStatsFile = reportsDir / "cache-stats.txt"
