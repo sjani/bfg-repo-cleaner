@@ -27,7 +27,7 @@ import com.madgag.git.bfg.model.TreeBlobEntry
 
 trait TreeBlobModifier extends Cleaner[TreeBlobs] {
 
-  val memoisedCleaner: Cleaner[TreeBlobEntry] = MemoUtil.concurrentCleanerMemo[TreeBlobEntry](Set.empty) {
+  val memoisedCleaner: Cleaner[TreeBlobEntry] = MemoUtil.concurrentBlockingCleanerMemo[TreeBlobEntry](Set.empty) {
     entry =>
       val (mode, objectId) = fix(entry)
       TreeBlobEntry(entry.filename, mode, objectId)

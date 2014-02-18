@@ -45,11 +45,11 @@ object MemoUtil {
     def apply(z: K => V) = f(z)
   }
 
-  def concurrentAsyncCleanerMemo[V] = concurrentCleanerMemo[V, Future[V]](_.foreach)(successful)
+  def concurrentAsyncCleanerMemo[V] = concurrentCleanerMemo[V, Future[V]](_.foreach, successful)_
 
-  def concurrentBlockingCleanerMemo[V] = concurrentCleanerMemo[V, V](v => _(v))(identity)
+  def concurrentBlockingCleanerMemo[V] = concurrentCleanerMemo[V, V](v => _(v), identity)_
 
-  def concurrentCleanerMemo[K, V](postCalc: V => (K => Unit) => Unit)(ident: K => V): Memo[K, V] = memo[K, V] {
+  def concurrentCleanerMemo[K, V](postCalc: V => (K => Unit) => Unit, ident: K => V)(fixedKs: Set[K]): Memo[K, V] = memo[K, V] {
     (f: K => V) =>
       lazy val permanentCache = loaderCacheFor(f) { v =>
         postCalc(v)(fix) // also fix 'k' for mem-efficiency? KeptPromise lighter than DefaultPromise?
@@ -59,6 +59,8 @@ object MemoUtil {
         // enforce that once any value is returned, it is 'good' and therefore an identity-mapped key as well
         permanentCache.put(k, ident(k))
       }
+
+      fixedKs.foreach(fix)
 
       memoFunc(permanentCache, fix)
   }

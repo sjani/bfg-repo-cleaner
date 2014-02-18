@@ -64,12 +64,12 @@ class ObjectIdCleaner(config: ObjectIdCleaner.Config, objectDB: ObjectDatabase, 
   val threadLocalResources = objectDB.threadLocalResources
 
   // want to enforce that once any value is returned, it is 'good' and therefore an identity-mapped key as well
-  val memo: Memo[ObjectId, ObjectId] = MemoUtil.concurrentCleanerMemo(protectedObjectCensus.fixedObjectIds)
+  val memo: Memo[ObjectId, ObjectId] = MemoUtil.concurrentBlockingCleanerMemo(protectedObjectCensus.fixedObjectIds)
 
-  val commitMemo: Memo[ObjectId, ObjectId] = MemoUtil.concurrentCleanerMemo(protectedObjectCensus.fixedObjectIds)
-  val tagMemo: Memo[ObjectId, ObjectId] = MemoUtil.concurrentCleanerMemo(protectedObjectCensus.fixedObjectIds)
+  val commitMemo: Memo[ObjectId, ObjectId] = MemoUtil.concurrentBlockingCleanerMemo(protectedObjectCensus.fixedObjectIds)
+  val tagMemo: Memo[ObjectId, ObjectId] = MemoUtil.concurrentBlockingCleanerMemo(protectedObjectCensus.fixedObjectIds)
 
-  val treeMemo: Memo[ObjectId, ObjectId] = MemoUtil.concurrentBlockingCleanerMemo
+  val treeMemo: Memo[ObjectId, ObjectId] = MemoUtil.concurrentBlockingCleanerMemo(protectedObjectCensus.fixedObjectIds)
 
   def apply(objectId: ObjectId): ObjectId = memoClean(objectId)
 
